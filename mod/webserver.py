@@ -730,6 +730,18 @@ class EffectBulk(JsonRequestHandler):
         self.write(result)
 
 class EffectList(JsonRequestHandler):
+    def set_default_headers(self):
+        # if 'Origin' not in self.request.headers.keys():
+        #     return
+        # origin = self.request.headers['Origin']
+        # match  = re.match(r'^(\w+)://([^/]*)/?', origin)
+        # if match is None:
+        #     return
+        # protocol, domain = match.groups()
+        # if protocol != "http" or not domain.endswith(":9000"):
+        #     return
+        self.set_header("Access-Control-Allow-Origin", '*')
+
     def get(self):
         data = get_all_plugins()
         self.write(data)
@@ -786,6 +798,9 @@ class SDKEffectUpdater(JsonRequestHandler):
         self.write({ 'ok': True })
 
 class EffectResource(TimelessStaticFileHandler):
+    def options(self):
+        self.set_status(204)
+        self.finish()
 
     def initialize(self):
         # Overrides StaticFileHandler initialize
@@ -918,6 +933,9 @@ class EffectRemove(JsonRequestHandler):
         self.write(ok)
 
 class EffectGet(CachedJsonRequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", '*')
+
     def get(self):
         uri = self.get_argument('uri')
 
@@ -1107,6 +1125,10 @@ class EffectPresetDelete(JsonRequestHandler):
         self.write(ok)
 
 class ServerWebSocket(websocket.WebSocketHandler):
+    def check_origin(self, origin):
+        print(origin)
+        return True
+
     @gen.coroutine
     def open(self):
         print("websocket open")
